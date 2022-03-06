@@ -1,7 +1,64 @@
 # Assignment 1
 ## Team members: Ameya Dalvi, Henish Shah, Shubham Bhagat
 
+# Part 1:  2021  Puzzle
 
+### State Abstraction:
+
+### Set of valid states:  
+All possible valid states that reach to a goal.
+
+### Successor function: 
+Successor function calculates all possible(24) valid row, column and ring transformations for a particular state.
+
+### Cost function: 
+Cost function is the sum of the actual path of moving from one state to another which is unit distance =1 and the admissible heuristic used which is the Modified Manhattan Distance in this case. 
+Hence, In this case, cost function can be defined as f(s) = g(s) + h(s), where, h(s) is the admissible Heuristic  which is the cost of reaching goal state from current state and g(s) is the cost of reaching current state from initial state.
+
+### Goal state definition: 
+Goal state is all the element in the matrix arranged in the proper ascending order.
+
+### Initial state: 
+Initial state is the initial house map that’s given in the question.
+
+
+### Implementation:
+	
+-	I have implemented A* Search that expands the state with the minimum value of the 
+of the cost function(modified Manhattan distance).
+-	I have created methods to implement all the 24 possible row, column and ring transformations.
+-	The cost function here is basically our Modified Manhattan Distance.
+-	In each case we check the values for the x and y coordinates of the manhattan distance.
+-	As the game works like a circularly linked list where each row and column is connected circularly to itself, every time when the cost of one of the absoluted coordinates is 4 we, change it to 1.
+-	Similarly, when the cost of one of the absoluted coordinates is 3 we, change it to 2. 
+-	And only now we add the x and y coordinates to get the correct admissible manhattan distance. 
+-	We can get the ideal row and column coordinates of an element.
+-	When we floor divide an element with 5 we get the ideal row location for that element.
+-	When we modulo divide an element with 5 we get the ideal column location for that element.
+-	In the end, as when we perform any row, column or ring transformation, we move atleast 5 elements at a time.
+-	So here, we divide the cumulative manhattan distance by 5 before returning.
+-	The way we create the Heuristic function here is very important to get the optimal answers in the least number of moves. Tweaking the Manhattan distance heuristic works well for this puzzle for the Board 0 and Board 0.5.
+-	Board 1 takes time to generate an answer.
+
+### Q1. In this problem, what is the branching factor of the search tree?
+
+In this case, as in total for one state, there are 24 possible valid row, column and ring transformations. Hence the branching factor is 24.
+
+### Q2. If  the  solution  can  be  reached  in  7  moves,  about  how  many  states  would  we  need        to  explore  before  we found it if we used BFS instead of A* search?  A rough answer is fine.
+
+For BFS, in the best case, at each level out of the 7 it would expand all the 24 nodes at each level. Hence we would need to explore approximately 24^7 nodes before we reach the goal in BFS.
+
+### Output on Terminal
+<img width="901" alt="Screen Shot 2021-10-08 at 11 39 14 PM" src="https://media.github.iu.edu/user/18454/files/a4afdb00-2891-11ec-82d3-11a6702038b2">
+
+### Pytest on Silo
+![ameya1](https://media.github.iu.edu/user/18454/files/e17bd200-2891-11ec-85ea-b630650513a6)
+
+
+
+
+
+<br>
 
 # Part 2: Road Trip
 ## Assigned member: Henish Shah
@@ -35,6 +92,11 @@ There were some cities for which there were no co-ordinates. The initial approac
 
 
 Although, we then considered returning the heuristic value as 0 for cases where the co-ordinates are missing. This substitute also works seamlessly for such cases.
+
+### Output on Terminal
+<img width="826" alt="Screen Shot 2021-10-08 at 11 57 02 PM" src="https://media.github.iu.edu/user/18454/files/877c0c00-2893-11ec-9f9a-49d15da816eb">
+
+
 
 ### pytest on Silo
 ![silo output](https://media.github.iu.edu/user/18454/files/62d26500-2890-11ec-84c7-39a0d91e131f)
@@ -98,7 +160,7 @@ while fringe:
 ### IMPORTANT NOTE:
 
 While executing pytest, for test2.txt sometimes the algorithm takes more time than predefined threshold. Thus, it may not pass the test2 for one execution but not for every instance of execution.
-Since we have implemented DFS, sometimes the first successor popped has time - 80 or even 101 and may take long time to reach the lowest possible value (43) within the 
+Since we have implemented DFS, sometimes the first successor popped has time 80 or even 101 and may take long time to reach the lowest possible value (43) within the 
 specified time. However, if time is not constraint, the algorithm will ALWAYS reach lowest time- 43.
 
 
