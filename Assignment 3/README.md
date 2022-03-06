@@ -1,131 +1,156 @@
-# Assignment 2
-
+# Assignment 3
 ## Team members: Ameya Dalvi, Henish Shah, Shubham Bhagat
+# Part 1: Part-of-Speech Tagging
 
-# Part 1: Raichu
-## State Abstraction:
-### Set of Valid States: 
-All possible permutation of boards which contains pichu, pikachu and raichu of both players – white as well as black.
+#### We have three major algorithms namely:
+1. Simple (Simple Bayes Network)
+2. HMM (Viterbi)
+3. Complex (MCMC)
 
-### Initial state:
-Initial state will be a valid board which contains pichu, pikachu and raichu of both players – white as well as black and passed as command line argument
+### Working:
 
-### Successor function:
-Takes a board as input and returns a set of valid boards where either for Player – white or black:
+#### 1.Simplified:
+- For this algorithm, since the only connections are between the hidden variable and its corresponding observed variable, we directly calculate the posterior probabilities for each a tag given a word and take the maximum of those probabilities to predict the appropriate tag
 
-#### 1] A Pichu:
-- one square forward diagonally, if that square is empty. 
-- jumps over a single Pichu of the opposite color by moving two squares forward diagonally if that square is empty. The jumped piece of opponent team is removed from the board as soon as it is jumped. 
+#### 2.HMM (Viterbi):
+- For this algorithm, we take into consideration the transition and emission probabilities. The main concept of this algorithm is dynamic programming. Thus, we make two tables to store the probability values and their corresponding tags.
+- For the initial word, we just consider the initial probabilities (probabilities that a particular tag appears in the first word of a sentence) and the respective emission probabilities. For the following words, we firstly take into consideration the product of transition probabilities and the probabilities received in the previous column, and find the maximum product. Post that, that maximum product is multiplied with the emission probabilities of the current column and this process is repeated.
+- Once our tables are ready, we start backtracking to find the best possible path/seq of the tags for a given sentence.
 
-#### 2] A Pikachu:
-- Moves 1 or 2 squares either forward, left, or right (but not diagonally) to an empty square, as long as all squares in between are also empty.
-- jumps over a single Pichu/Pikachu of the opposite color by moving 2 or 3 squares forward, left, or right (not diagonally), as long as all of the squares between the Pikachu’s start position and jumped piece are empty and all the squares between the jumped piece and the ending position are empty. The jumped piece of opponent player is removed as soon as it is jumped. 
+#### 3.Complex (MCMC)
+- In this algorithm, we make use of Gibbs sampling method to generate 500 samples for each possible combination of tags for the words in a sentence. By this method, eventually with all the samples, the algorithm converges (tries to converge) on the best possible sequence of the tags. In addition to the emission and transition probabilities calculated in Viterbi, we also consider new set of emission and transition values in this algorithm.
 
-#### 3] A Raichu: created when a Pichu or Pikachu reaches the opposite side of the board 
-- Moves any number of squares forward/backward, left, right or diagonally, to an empty square, as long as all squares in between are also empty. 
-- Jumps over a single Pichu/Pikachu/Raichu of the opposite color and landing any number of squares forward/backward, left, right or diagonally, as long as all of the squares between the Raichu’s start position and jumped piece are empty and all the squares between the jumped piece and the ending position are empty. The jumped piece of opponent player is removed as soon as it is jumped. 
-
-Successor function considers that 
-*Pichus can only capture Pichus, Pikachus can capture Pichus or Pikachus, while Raichus can capture any piece of opponent player**
+### Silo Output:
+![part1](https://media.github.iu.edu/user/18308/files/91397e80-5494-11ec-9443-bbedda4af977)
 
 
 
+# Part 2: Ice Tracking
+### Using Bayes Net:
+- In this approach, we basically find the pixel with the least value in that column and assume it to be the boundary.
+- The drawback of this naive approach is that it plots a boundary that is not continuous.
+- Assuming that boundaries, in general, are a bit smoother and continuous in nature, having a model that takes into account these details would help in accurately denoting the boundary. 
+- Hence to get a more accurate boundary detection we use HMM (Viterbi) in our 2nd approach.
 
-### Heuristic Function
+### Using Viterbi Algorithm:
+In this approach, we mainly focus on 3 types of probabilities.
 
-We have used 3 heuristics for computing the optimal (best) successor for any given board.
+1. **Initial Probability:**
+Initial probability is calculated by assigning the reciprocal of the total number of rows for each pixel in the first column.
+2. **Emission Probability:**
+Emission probability is basically the pixel value divided by the sum of pixel values in that pixel column.
+3. **Transition Probability:**
+The reciprocal manhattan distance of the row number of pixel in col i and pixel in col i+1 is used to calculate the transition probability. Furthermore, as we know that there won’t be a major unevenness n the boundary, the transition probability of pixels after a threshold of 10 is set to a very low value.
+	
+Using the Viterbi algorithm, we can better estimate a boundary as opposed to the Naive approach as here we take into account the smoothness of the boundary and hence including transition probabilities in our simple Bayes Net.
 
-#### 1] Heuristic 1:
-- This computes the aggregate of the weighted difference in the number pichus, pikachus and raichus respectively for both players.
-- For any given player, maximizing this heuristic would increase their chances of winning.
-
-#### 2] Heuristic 2:
-- This computes the value which is inversely related to the distance for any piece (pichu or pikachu) to reach the opposite side. The lesser the distance, the greater is this value which increases the likelihood of selecting a successor. 
-
-#### 3] Heuristic 3:
-This computes the number of boxes(positions) that a given piece can control from its position. This indicates the number of moves that piece can make. 
-
-
-### Goal State:
-A board where one player captures all the pieces of opponent player
-
-
-### Approach:
-
-- For our program, we have used minimax algorithm with alpha-beta pruning up to height = 2
-- So, for any given board, we will take 2 levels of successors into consideration. Here, the max-player will select the maximum value from beta values returned by its successors, and the min-player will select the minimum value from alpha values returned by its successor.
-- Likewise, each player at any given state will try to maximize its chances of winning.
-
-*The output that we are getting takes an average time of 5~6 secs for height 2. We also tried running the algorithm for height 3 and height 4, which gave better results but took a longer time of ~9.76secs and ~80secs respectively.*
-
-![Screen Shot 2021-11-05 at 10 44 58 PM](https://media.github.iu.edu/user/18454/files/81c61600-3e93-11ec-80cf-ae5fdf4cc061)
+### Using HMM with Human Feedback:
+For this approach, we have an extra set of information which are the coordinates of 2 pixels that lie on the air-ice ice-rock boundary respectively.
+This is just a piece of additional information that we need to consider to estimate the boundaries, hence the emission and transition probabilities are the same.
+The image is split at the column index of the coordinate, and we run the viterbi algorithm on these two images separately.
+We get the boundary paths from both the images separately and merge them into a single path to finally plot the boundaries.
 
 
+### Results:
+
+![part2](https://media.github.iu.edu/user/18308/files/f63fa500-5491-11ec-919a-ac47e0abf5ea)
 
 
 
+ 
+ 
+# Part 3: Reading Text
+
+- In the problem, we make use of Simple Bayes Net to train our algorithm to detect handwritten/noisy text. 
+- Our training sample consists of 26 Uppercase letters, 26 Lowercase letters, 10 digits, and 10 characters.
+- Initially, we create a test dictionary using one of the noisy test images
+- We basically make a matrix of blank spaces ‘  ‘ and asterisks ‘*’ to denote this character in the matrix format.
+- We then compare each character of the testing string, pixel by pixel with each character of the training string and store the number of asterisks comparisons and  space comparisons for each character in the training string.
+- Then we update our output dictionary storing the probability for each given character in the testing string.
+- Now we extract and remove symbols and numbers separately from our main dictionary as symbols_dict and num_dict.
+- We now have 3 dictionaries named num_dict, symbols_dict, and the original dictionary.
+- We find the letter, symbol, and number with the highest probability from each dictionary respectively.
+- There were some noisy images in which letters like l, t, J were detected as ‘1’.
+- To resolve this, we set a certain threshold in order to avoid misidentification of such letters.
+- Such thresholds were also set for noisy characters like ‘o’, ‘a’, ‘i’, ‘r’, ‘t’ where it would mark these as either ‘  ‘ or “ ‘ “.
+
+### Output:
+![Part3_output](https://media.github.iu.edu/user/18308/files/7404b000-5494-11ec-8ff5-35ccc54c0225)
+# Assignment 3
+## Team members: Ameya Dalvi, Henish Shah, Shubham Bhagat
+# Part 1: Part-of-Speech Tagging
+
+#### We have three major algorithms namely:
+1. Simple (Simple Bayes Network)
+2. HMM (Viterbi)
+3. Complex (MCMC)
+
+### Working:
+
+#### 1.Simplified:
+- For this algorithm, since the only connections are between the hidden variable and its corresponding observed variable, we directly calculate the posterior probabilities for each a tag given a word and take the maximum of those probabilities to predict the appropriate tag
+
+#### 2.HMM (Viterbi):
+- For this algorithm, we take into consideration the transition and emission probabilities. The main concept of this algorithm is dynamic programming. Thus, we make two tables to store the probability values and their corresponding tags.
+- For the initial word, we just consider the initial probabilities (probabilities that a particular tag appears in the first word of a sentence) and the respective emission probabilities. For the following words, we firstly take into consideration the product of transition probabilities and the probabilities received in the previous column, and find the maximum product. Post that, that maximum product is multiplied with the emission probabilities of the current column and this process is repeated.
+- Once our tables are ready, we start backtracking to find the best possible path/seq of the tags for a given sentence.
+
+#### 3.Complex (MCMC)
+- In this algorithm, we make use of Gibbs sampling method to generate 500 samples for each possible combination of tags for the words in a sentence. By this method, eventually with all the samples, the algorithm converges (tries to converge) on the best possible sequence of the tags. In addition to the emission and transition probabilities calculated in Viterbi, we also consider new set of emission and transition values in this algorithm.
+
+### Silo Output:
+![part1](https://media.github.iu.edu/user/18308/files/91397e80-5494-11ec-9443-bbedda4af977)
 
 
 
-# Part 2: The Game of Quintris
+# Part 2: Ice Tracking
+### Using Bayes Net:
+- In this approach, we basically find the pixel with the least value in that column and assume it to be the boundary.
+- The drawback of this naive approach is that it plots a boundary that is not continuous.
+- Assuming that boundaries, in general, are a bit smoother and continuous in nature, having a model that takes into account these details would help in accurately denoting the boundary. 
+- Hence to get a more accurate boundary detection we use HMM (Viterbi) in our 2nd approach.
 
-## State Abstraction:
-### Initial state:
-The initial state would be the empty board which is initiated at the start of the game.
+### Using Viterbi Algorithm:
+In this approach, we mainly focus on 3 types of probabilities.
 
-### Successor function:
-The successor function calculates the set of all the possible states where a piece and all its subsequent transformations could be placed in the map.
+1. **Initial Probability:**
+Initial probability is calculated by assigning the reciprocal of the total number of rows for each pixel in the first column.
+2. **Emission Probability:**
+Emission probability is basically the pixel value divided by the sum of pixel values in that pixel column.
+3. **Transition Probability:**
+The reciprocal manhattan distance of the row number of pixel in col i and pixel in col i+1 is used to calculate the transition probability. Furthermore, as we know that there won’t be a major unevenness n the boundary, the transition probability of pixels after a threshold of 10 is set to a very low value.
+	
+Using the Viterbi algorithm, we can better estimate a boundary as opposed to the Naive approach as here we take into account the smoothness of the boundary and hence including transition probabilities in our simple Bayes Net.
 
-### Heuristic:
-comp_lines : This takes into account, the number of lines completed. This heuristic which we would be maximising, would have the maximum weight in our algorithm.
-line_fill : This takes into account the extent to which a particular line is filled in the map. The score increases quadratically as a particular row is filled. We would try to maximize this heuristic. 
-agg_height : This takes into account the height of each column of the map. We would be minimising this heuristic
-holes : This calculates the total number of holes in the entire map. We would try to minimise this heuristic.
-bumpiness : This calculates the unevenness of the entire map. We would try to minimise this heuristic.  
-
-### Goal state:
-There is no particular goal state for this algorithm. Ideally, it would aim to run the code forever and keep on increasing the score.
-
-### Algorithm:
-The algorithm used in this instance is Expectimax with depth two. 
-
-## Implementation:
-For this algorithm, we make use of the SimpleQuintris() interface for our game to run. For a given board and piece, our algorithm calculates all the successor states for that piece and its transformation. Post that, it looks into the next piece and calculates all the possible successor states thereon. Thus, for each piece, it gives the best possible successor from a tree of depth two.
-For returning the string of moves, we found that a piece would not transform if it reaches the far-right side of the map. Thus, for the cases where our pieces have to move to the right, the algorithm would first transform the piece and then shift it. 
-The average score that our algorithm achieves is in the range of ~60.
+### Using HMM with Human Feedback:
+For this approach, we have an extra set of information which are the coordinates of 2 pixels that lie on the air-ice ice-rock boundary respectively.
+This is just a piece of additional information that we need to consider to estimate the boundaries, hence the emission and transition probabilities are the same.
+The image is split at the column index of the coordinate, and we run the viterbi algorithm on these two images separately.
+We get the boundary paths from both the images separately and merge them into a single path to finally plot the boundaries.
 
 
-## Terminal Output:
-<img width="1440" alt="Screen Shot 2021-11-05 at 10 15 22 PM" src="https://media.github.iu.edu/user/18308/files/01071a00-3e93-11ec-9234-320fe87bf04a">
+### Results:
 
-<img width="1440" alt="Screen Shot 2021-11-05 at 10 06 05 PM" src="https://media.github.iu.edu/user/18308/files/082e2800-3e93-11ec-87cf-73f867ee2bdd">
+![part2](https://media.github.iu.edu/user/18308/files/f63fa500-5491-11ec-919a-ac47e0abf5ea)
 
 
 
+ 
+ 
+# Part 3: Reading Text
 
+- In the problem, we make use of Simple Bayes Net to train our algorithm to detect handwritten/noisy text. 
+- Our training sample consists of 26 Uppercase letters, 26 Lowercase letters, 10 digits, and 10 characters.
+- Initially, we create a test dictionary using one of the noisy test images
+- We basically make a matrix of blank spaces ‘  ‘ and asterisks ‘*’ to denote this character in the matrix format.
+- We then compare each character of the testing string, pixel by pixel with each character of the training string and store the number of asterisks comparisons and  space comparisons for each character in the training string.
+- Then we update our output dictionary storing the probability for each given character in the testing string.
+- Now we extract and remove symbols and numbers separately from our main dictionary as symbols_dict and num_dict.
+- We now have 3 dictionaries named num_dict, symbols_dict, and the original dictionary.
+- We find the letter, symbol, and number with the highest probability from each dictionary respectively.
+- There were some noisy images in which letters like l, t, J were detected as ‘1’.
+- To resolve this, we set a certain threshold in order to avoid misidentification of such letters.
+- Such thresholds were also set for noisy characters like ‘o’, ‘a’, ‘i’, ‘r’, ‘t’ where it would mark these as either ‘  ‘ or “ ‘ “.
 
-# Part 3: Truth be Told
-## Implementation:
-- For the classifier, we have made use of CountVectorizer class of the SkLearn module in python.
-- CountVectorizer converts a collection of text documents to a matrix of token counts.
-- This implementation produces a sparse representation of the counts using scipy.sparse.csr_matrix.
-- If you do not provide an a-priori dictionary and you do not use an analyzer that does some kind of feature selection then the number of features will be equal to   the vocabulary size found by analyzing the data.
-- The dDict and tDict contain the count of a set of all the words present under the deceptive and truthful label respectively. 
-- prob_of_D and prob_of_T store the initial prior probabilities P(D) and P(T) respectively (which is equal to 0.5 initially).
-- We ignore all the verbage in all the given sentences by removing words that contain numerals, exclamations, etc. We have used regex for this.
-- Doing this itself helped us a lot in improving our accuracy by almost 3%.
-- The count_line_D and count_line_D dictionaries store a key-value pair where the key is a unique word and value is the count of that word in a line of dList and     tList respectively.
-- prob_of_word_D and prob_of_word_T is the probability of a particular word in either dList or tList. This dictionary stores the probability of a word P(W) for all   words in the dList and tList. 
-- Now, we apply the Bayes law to compute the probability of a line in the test data set either being Deceptive or Truthful.
-- When we floor divide an element with 5 we get the ideal row location for that element.
-- Based on our Bayes Law probabilities, we classify lines of the dataset as either deceptive or truthful.
-- Currently, we were able to achieve an accuracy of 83% (332/400 lines classified correctly.
-
-## Terminal Output:
-<img width="755" alt="Screen Shot 2021-11-05 at 11 32 52 PM" src="https://media.github.iu.edu/user/18308/files/1891d300-3e92-11ec-8b2a-7bb5f9a57709">
-
-
-## Silo Output:
-<img width="755" alt="Screen Shot 2021-11-05 at 11 35 42 PM" src="https://media.github.iu.edu/user/18308/files/1f204a80-3e92-11ec-935b-fc57efab01eb">
-
-
+### Output:
+![Part3_output](https://media.github.iu.edu/user/18308/files/7404b000-5494-11ec-8ff5-35ccc54c0225)
