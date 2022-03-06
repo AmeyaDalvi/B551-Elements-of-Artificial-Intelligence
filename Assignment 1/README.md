@@ -2,6 +2,7 @@
 ## Team members: Ameya Dalvi, Henish Shah, Shubham Bhagat
 
 # Part 1:  2021  Puzzle
+## Assigned member: Ameya Dalvi
 
 ### State Abstraction:
 
